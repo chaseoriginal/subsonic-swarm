@@ -1,0 +1,34 @@
+services:
+  subsonic:
+    image: stuckj/subsonic:latest
+    environment:
+      - SUBSONIC_MAX_MEMORY=1024
+      - SUBSONIC_PORT=8080
+      - SUBSONIC_HTTPS_PORT=8443
+      - SUBSONIC_UID=1000
+      - SUBSONIC_GID=33
+      - SUBSONIC_CONTEXT_PATH=/
+    ports:
+      - target: 8443
+        published: 8443
+        protocol: tcp
+        mode: host     
+      - target: 8080
+        published: 8080
+        protocol: tcp
+        mode: host
+    deploy:
+      placement:
+        constraints:
+          - node.labels.deployment.target.subsonic == true
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - /media/Multimedia/Music:/var/music
+      - /media/Multimedia/Music/playlists:/var/playlists
+      - /media/Multimedia:/var/multimedia
+      - subsonic-swarm:/var/subsonic
+      - /etc/ssl/certs/RootCA-certificate.crt:/usr/local/share/ca-certificates/RootCA-certificate.crt:ro
+
+volumes:
+  subsonic-swarm:  # default "local" driver
